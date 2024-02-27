@@ -4,6 +4,8 @@ import discord
 from dotenv import load_dotenv
 import os
 
+from keep_alive import keep_alive
+
 load_dotenv()
 TOKEN=os.getenv("TOKEN")
 
@@ -35,4 +37,5 @@ intents.message_content = True
 intents.reactions = True
 
 client = MyClient(intents=intents)
+keep_alive()
 client.run(TOKEN)
