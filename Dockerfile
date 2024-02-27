@@ -1,6 +1,6 @@
 FROM python:3.11
-WORKDIR /bot
-COPY requirements.txt /bot/
+WORKDIR /src
+COPY requirements.txt /src/
 RUN pip install -r requirements.txt
-COPY . /bot
+COPY . /src
 CMD python main.py
