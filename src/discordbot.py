@@ -1,10 +1,6 @@
-# This example requires the 'message_content' intent.
-
-from typing import Literal
 import discord
 from dotenv import load_dotenv
 import os
-import logging
 
 load_dotenv()
 TOKEN=os.getenv("TOKEN")
@@ -42,9 +38,9 @@ class MyClient(discord.Client):
             return
         if not (message.role_mentions and message.role_mentions[0].id == int(LOL_MENTION_ID)):
             return
+        if not ("カスタム" in message.content):
+            return
         await add_clock_reaction(message=message)
-
-        print(f'Message from {message.author}: {message.content}')
 
     async def on_reaction_add(self, reaction, user):
         message = await reaction.message.fetch()
