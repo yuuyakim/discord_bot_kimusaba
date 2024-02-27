@@ -12,6 +12,8 @@ class MyClient(discord.Client):
         print(f'Logged on as {self.user}!')
 
     async def on_message(self, message):
+        if message.author.bot:
+            return
         print(f'Message from {message.author}: {message.content}')
 
     async def on_reaction_add(self, reaction, user):
@@ -25,7 +27,7 @@ class MyClient(discord.Client):
             reactions_count += reaction.count
         if reactions_count == 4:
             msg = f"{str(message.role_mentions[0].mention)}\n \
-            \n スタンプありがとう！ \n This is test message"
+            スタンプありがとう！ \nThis is test message"
             await channel.send(msg)
 
 intents = discord.Intents.all()
