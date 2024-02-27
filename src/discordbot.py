@@ -1,11 +1,37 @@
 # This example requires the 'message_content' intent.
 
+from typing import Literal
 import discord
 from dotenv import load_dotenv
 import os
+import logging
 
 load_dotenv()
 TOKEN=os.getenv("TOKEN")
+LOL_MENTION_ID=os.getenv("LOL_MENTION_ID")
+SEVEN_OCLOCK_EMOJI=os.getenv("SEVEN_OCLOCK_EMOJI")
+EIGHT_OCLOCK_EMOJI=os.getenv("EIGHT_OCLOCK_EMOJI")
+NINE_OCLOCK_EMOJI=os.getenv("NINE_OCLOCK_EMOJI")
+TEN_OCLOCK_EMOJI=os.getenv("TEN_OCLOCK_EMOJI")
+
+def set_time(reaction):
+    match reaction.emoji:
+        case "🕖":
+            return "19時"
+        case "🕗":
+            return "20時"
+        case "🕘":
+            return "21時"
+        case "🕙":
+            return "22時"
+        case _:
+            return ""
+
+async def add_clock_reaction(message):
+    await message.add_reaction(SEVEN_OCLOCK_EMOJI)
+    await message.add_reaction(EIGHT_OCLOCK_EMOJI)
+    await message.add_reaction(NINE_OCLOCK_EMOJI)
+    await message.add_reaction(TEN_OCLOCK_EMOJI)
 
 class MyClient(discord.Client):
     async def on_ready(self):
@@ -14,21 +40,31 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         if message.author.bot:
             return
+        if not (message.role_mentions and message.role_mentions[0].id == int(LOL_MENTION_ID)):
+            return
+        await add_clock_reaction(message=message)
+
         print(f'Message from {message.author}: {message.content}')
 
     async def on_reaction_add(self, reaction, user):
         message = await reaction.message.fetch()
         if not message.role_mentions:
             return
-        channel = message.channel
         reactions = message.reactions
-        reactions_count = 0
+
+        msg_at = ""
+        user_set = set()
         for reaction in reactions:
-            reactions_count += reaction.count
-        if reactions_count == 4:
-            msg = f"{str(message.role_mentions[0].mention)}\n \
-            スタンプありがとう！ \nThis is test message"
-            await channel.send(msg)
+            _msg_at = set_time(reaction=reaction)
+            count = 0
+            async for user in reaction.users():
+                user_set.add(user)
+                count += 1
+            if _msg_at and count > 1:
+                msg_at = _msg_at
+        if len(user_set) - 1 == 10:
+            msg = f"{str(message.role_mentions[0].mention)}\n{msg_at}カスタム開催！！！！！！！！！！！！"
+            await message.reply(msg)
 
 intents = discord.Intents.all()
 intents.message_content = True
